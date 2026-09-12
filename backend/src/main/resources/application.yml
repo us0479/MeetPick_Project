@@ -1,0 +1,63 @@
+# COMMON configuration: 모든 profile이 공유하는 안전한 기본값.
+# 비밀번호/host 같은 환경별 값은 local/prod 파일 또는 환경변수에 둡니다.
+spring:
+  application:
+    name: meetpick
+  profiles:
+    default: local
+
+  # API/Entity 시간은 UTC 의미를 유지한다.
+  jackson:
+    time-zone: UTC
+    serialization:
+      write-dates-as-timestamps: false
+
+  jpa:
+    # Request가 끝날 때까지 영속성 컨텍스트를 억지로 열어두지 않는다.
+    # B의 N+1/Lazy Loading/Transaction 학습을 숨기지 않기 위한 공통 원칙.
+    open-in-view: false
+    hibernate:
+      # Flyway가 schema source of truth. create/update로 바꾸지 않는다.
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: 8080
+  shutdown: graceful
+
+# local Swagger 경로. prod profile에서는 비활성화한다.
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: MeetPick
+    version: v0.1
+
+# 여러 origin은 comma로 구분. SecurityConfig가 split한다.
+meetpick:
+  cors:
+    allowed-origins: http://localhost:5173

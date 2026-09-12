@@ -1,0 +1,32 @@
+# LOCAL profile: docker-compose.yml의 MySQL/Redis 기본값과 맞춘다.
+spring:
+  datasource:
+    # Connector/J connection timezone과 MySQL session timezone을 UTC로 통일한다.
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:meetpick}?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true&characterEncoding=UTF-8&useUnicode=true
+    username: ${MYSQL_USER:meetpick}
+    password: ${MYSQL_PASSWORD:meetpick}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-init-sql: "SET time_zone = '+00:00'"
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 2s
+
+# 개발 중 B가 SQL/N+1을 직접 보기 위한 로그. prod에는 적용되지 않는다.
+logging:
+  level:
+    org.hibernate.SQL: debug
+
+management:
+  endpoint:
+    health:
+      show-details: always
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true

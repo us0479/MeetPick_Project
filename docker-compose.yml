@@ -1,0 +1,54 @@
+# COMMON LOCAL INFRA
+# 기능 소유와 무관하게 전원이 같은 MySQL/Redis 버전으로 개발하기 위한 compose 파일.
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: meetpick-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-meetpick}
+      MYSQL_USER: ${MYSQL_USER:-meetpick}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-meetpick}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-meetpick-root}
+      TZ: UTC
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+    volumes:
+      - meetpick-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u$$MYSQL_USER -p$$MYSQL_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+    networks:
+      - meetpick-network
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: meetpick-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    # A의 Refresh/Invite/RateLimit 데이터를 local 재시작 후에도 확인할 수 있도록 AOF 사용.
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - meetpick-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks:
+      - meetpick-network
+
+volumes:
+  meetpick-mysql-data:
+  meetpick-redis-data:
+
+networks:
+  meetpick-network:
+    driver: bridge

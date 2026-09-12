@@ -1,0 +1,77 @@
+// COMMON BACKBONE: 공통 dependency만 둡니다. 역할별 library 추가는 해당 Issue/PR에 이유를 남깁니다.
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '4.1.1'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.meetpick'
+version = '0.0.1-SNAPSHOT'
+description = 'MeetPick Backend'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+
+repositories {
+    mavenCentral()
+}
+
+// 직접 버전을 고정하는 외부 라이브러리. Spring 관리 dependency는 Boot BOM에 맡깁니다.
+ext {
+    querydslVersion = '7.6'
+    springdocVersion = '3.1.0'
+}
+
+dependencies {
+    // Web / API
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // Security — A가 JWT/Refresh 구현을 이어갑니다.
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // Persistence — 공통 JPA + B의 QueryDSL/DB 실험 기반입니다.
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation "io.github.openfeign.querydsl:querydsl-jpa:${querydslVersion}"
+    annotationProcessor "io.github.openfeign.querydsl:querydsl-apt:${querydslVersion}:jpa"
+    annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
+    annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
+
+    // MySQL / Flyway
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    implementation 'org.flywaydb:flyway-core'
+    runtimeOnly 'org.flywaydb:flyway-mysql'
+
+    // Redis — A Auth Session/Invite/RateLimit에서 사용. C의 알림 큐 용도로는 MVP에서 사용하지 않습니다.
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // Monitoring / API Docs
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    // Test — Docker가 가능한 CI에서 MySQL/Redis를 실제 기동해 schema/connection을 검증합니다.
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation 'org.testcontainers:testcontainers-junit-jupiter'
+    testImplementation 'org.testcontainers:testcontainers-mysql'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += ['-parameters']
+    options.encoding = 'UTF-8'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
