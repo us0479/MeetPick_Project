@@ -9,8 +9,9 @@ spring:
   # API/Entity 시간은 UTC 의미를 유지한다.
   jackson:
     time-zone: UTC
-    serialization:
-      write-dates-as-timestamps: false
+    datatype:
+      datetime:
+        write-dates-as-timestamps: false
 
   jpa:
     # Request가 끝날 때까지 영속성 컨텍스트를 억지로 열어두지 않는다.

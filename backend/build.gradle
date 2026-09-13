@@ -15,7 +15,6 @@ java {
     }
 }
 
-
 repositories {
     mavenCentral()
 }
@@ -43,7 +42,7 @@ dependencies {
 
     // MySQL / Flyway
     runtimeOnly 'com.mysql:mysql-connector-j'
-    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.springframework.boot:spring-boot-starter-flyway'
     runtimeOnly 'org.flywaydb:flyway-mysql'
 
     // Redis — A Auth Session/Invite/RateLimit에서 사용. C의 알림 큐 용도로는 MVP에서 사용하지 않습니다.
