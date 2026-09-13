@@ -3,6 +3,7 @@ package com.meetpick;
 import com.meetpick.support.AbstractIntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -45,7 +46,9 @@ class BackboneInfrastructureTest extends AbstractIntegrationTest {
 
     @Test
     void redisServiceConnectionWorks() {
-        String pong = stringRedisTemplate.execute(connection -> connection.ping());
+        String pong = stringRedisTemplate.execute(
+                (RedisCallback<String>) connection -> connection.ping()
+        );
 
         assertThat(pong).isEqualTo("PONG");
     }

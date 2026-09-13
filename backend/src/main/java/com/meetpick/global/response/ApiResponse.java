@@ -18,7 +18,7 @@ public record ApiResponse<T>(
         return new ApiResponse<>(true, data);
     }
 
-    public static ApiResponse<Void> success() {
+    public static ApiResponse<Void> successWithoutData() {
         return new ApiResponse<>(true, null);
     }
 }
