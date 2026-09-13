@@ -43,4 +43,18 @@ public class User extends BaseEntity {
 
     @Column(name = "nickname", nullable = false, length = 50)
     private String nickname;
+
+private User(String email, String password, String nickname) {
+    this.email = email;
+    this.password = password;
+    this.nickname = nickname;
+}
+
+public static User create(
+        String email,
+        String encodedPassword,
+        String nickname
+) {
+    return new User(email, encodedPassword, nickname);
+}
 }
